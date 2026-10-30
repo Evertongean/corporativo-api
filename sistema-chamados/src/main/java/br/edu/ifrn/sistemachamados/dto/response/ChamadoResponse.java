@@ -1,0 +1,1 @@
+package br.edu.ifrn.sistemachamados.dto.response; import br.edu.ifrn.sistemachamados.model.enums.*; import java.time.*; public record ChamadoResponse(Long id,String titulo,String descricao,String local,Prioridade prioridade,StatusChamado status,LocalDateTime dataAbertura,LocalDateTime dataFechamento,String solucao,Long solicitanteId,Long categoriaId,Long tecnicoId) {}

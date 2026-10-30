@@ -1,0 +1,1 @@
+package br.edu.ifrn.sistemachamados.dto.response; import br.edu.ifrn.sistemachamados.model.enums.TipoUsuario; public record UsuarioResponse(Long id,String nome,String email,String matricula,TipoUsuario tipo,Long setorId) {}

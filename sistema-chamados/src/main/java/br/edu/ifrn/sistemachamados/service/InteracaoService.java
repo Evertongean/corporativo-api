@@ -10,6 +10,8 @@ import br.edu.ifrn.sistemachamados.repository.ChamadoRepository;
 import br.edu.ifrn.sistemachamados.repository.InteracaoRepository;
 import br.edu.ifrn.sistemachamados.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -45,6 +47,12 @@ public class InteracaoService {
         interacao.setAutor(autor);
         interacao.setDataHora(LocalDateTime.now());
         return interacaoRepository.save(interacao);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Interacao> listarPorChamado(Long chamadoId, Pageable pageable) {
+        buscarChamado(chamadoId);
+        return interacaoRepository.findByChamadoIdOrderByDataHoraAsc(chamadoId, pageable);
     }
 
     private boolean autorPermitido(Chamado chamado, Usuario autor) {

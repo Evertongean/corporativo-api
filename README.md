@@ -41,3 +41,21 @@ A aplicação `sistema-chamados` utiliza PostgreSQL. A conexão é configurada p
 O Flyway executa, em ordem, os scripts em `sistema-chamados/src/main/resources/db/migration`. Ele registra cada versão aplicada e seu checksum na tabela `flyway_schema_history`. Uma migration já aplicada não deve ser modificada: se seu conteúdo mudar, o checksum calculado deixa de corresponder ao registrado e o Flyway interrompe a validação, protegendo a consistência do histórico. Para evoluir o banco, deve-se adicionar uma nova migration versionada.
 
 O Hibernate está configurado com `spring.jpa.hibernate.ddl-auto=validate` e `spring.jpa.open-in-view=false`. Assim, ele apenas verifica se o mapeamento JPA corresponde ao esquema criado pelo Flyway; não cria nem altera tabelas. Isso evita alterações implícitas no banco e mantém a evolução do schema versionada e reprodutível, ao contrário de `ddl-auto=update`.
+
+## API REST
+
+As rotas públicas usam JSON, paginação (`page`, `size`, `sort`) e retornam dados por DTO. O tamanho padrão é 10 e o máximo é 50. Recursos disponíveis: `/setores`, `/categorias`, `/usuarios` e `/chamados`.
+
+```bash
+curl -X POST localhost:8080/setores -H 'Content-Type: application/json' -d '{"nome":"Tecnologia","sigla":"TI"}'
+curl -X POST localhost:8080/categorias -H 'Content-Type: application/json' -d '{"nome":"Rede","descricao":"Internet","setorId":1}'
+curl -X POST localhost:8080/usuarios -H 'Content-Type: application/json' -d '{"nome":"Aluno","email":"aluno@example.com","matricula":"20260005","tipo":"SOLICITANTE"}'
+curl -X POST localhost:8080/chamados -H 'Content-Type: application/json' -d '{"titulo":"Sem rede","descricao":"Internet indisponível","local":"Sala 1","prioridade":"ALTA","solicitanteId":1,"categoriaId":1}'
+curl -X PATCH localhost:8080/chamados/1/assumir -H 'Content-Type: application/json' -d '{"tecnicoId":3}'
+curl -X PATCH localhost:8080/chamados/1/resolver -H 'Content-Type: application/json' -d '{"tecnicoId":3,"solucao":"Equipamento ajustado"}'
+curl -X PATCH localhost:8080/chamados/1/cancelar -H 'Content-Type: application/json' -d '{"solicitanteId":1}'
+curl -X POST localhost:8080/chamados/1/interacoes -H 'Content-Type: application/json' -d '{"autorId":1,"texto":"Ainda ocorre"}'
+curl 'localhost:8080/chamados?status=ABERTO&prioridade=ALTA&page=0&size=10&sort=dataAbertura,desc'
+```
+
+Os erros usam o formato `{ "timestamp", "status", "mensagem", "caminho" }`; por exemplo, dados inválidos retornam 400, recurso inexistente 404 e violações de regra 409.
