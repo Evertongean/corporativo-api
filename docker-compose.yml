@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: chamados
+      POSTGRES_USER: ${DB_USER:-chamados}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-chamados_dev_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  api:
+    build:
+      context: ./sistema-chamados
+      dockerfile: Dockerfile
+    environment:
+      DB_URL: ${DB_URL:-jdbc:postgresql://db:5432/chamados}
+      DB_USER: ${DB_USER:-chamados}
+      DB_PASSWORD: ${DB_PASSWORD:-chamados_dev_password}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
