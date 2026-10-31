@@ -59,3 +59,50 @@ curl 'localhost:8080/chamados?status=ABERTO&prioridade=ALTA&page=0&size=10&sort=
 ```
 
 Os erros usam o formato `{ "timestamp", "status", "mensagem", "caminho" }`; por exemplo, dados inválidos retornam 400, recurso inexistente 404 e violações de regra 409.
+
+## Testes automatizados
+
+Use Java 21 e execute os comandos dentro de `sistema-chamados`:
+
+```bash
+JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto ./mvnw clean test
+JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto ./mvnw clean package
+```
+
+Além dos testes de serviço, há testes REST com MockMvc para `SetorController`, `CategoriaController`, `UsuarioController` e `ChamadoController`. Eles simulam os serviços, portanto não dependem de PostgreSQL. Os testes verificam os contratos HTTP, validação, paginação, filtros, serialização e o formato padronizado de erros.
+
+Para uma execução completa que também carrega o contexto da aplicação, informe um PostgreSQL disponível pelas variáveis `DB_URL`, `DB_USER` e `DB_PASSWORD` ou utilize o Compose descrito abaixo.
+
+## Execução com Docker e validação manual
+
+Da raiz do repositório, inicie a aplicação e o PostgreSQL 17:
+
+```bash
+docker compose up --build
+```
+
+Se a porta 8080 estiver ocupada, escolha outra sem interromper serviços existentes:
+
+```bash
+API_PORT=8081 docker compose up --build
+```
+
+Os dados iniciais são criados pelo Flyway: dois setores, quatro categorias, dois solicitantes e dois técnicos. Consulte `GET /setores`, `GET /categorias` e `GET /usuarios` para obter os IDs reais antes de fazer operações de escrita.
+
+Exemplos de filtros:
+
+```text
+GET /chamados?status=ABERTO&prioridade=ALTA&setorId=1&page=0&size=10&sort=dataAbertura,desc
+GET /categorias?nome=Rede&setorId=1&page=0&size=10
+GET /usuarios?tipo=TECNICO&setorId=1&sort=nome,asc
+```
+
+`page` começa em 0, `size` é 10 por padrão e aceita no máximo 50. A resposta sempre contém `content`, `page`, `size`, `totalElements` e `totalPages`. Campos de ordenação inexistentes, datas inválidas, páginas negativas e tamanhos inválidos retornam 400.
+
+Os códigos mais frequentes são: 400 para parâmetros ou corpo inválidos; 404 para recurso inexistente; e 409 para e-mail/sigla duplicados, integridade, permissões e transições de chamado não permitidas. O corpo do erro inclui `timestamp`, `status`, `mensagem` e `caminho`.
+
+## Postman
+
+Importe [`postman/Sistema_Chamados_IFRN.postman_collection.json`](postman/Sistema_Chamados_IFRN.postman_collection.json) no Postman. A variável `baseUrl` inicia em `http://localhost:8080`; altere-a para `http://localhost:8081` se tiver usado `API_PORT=8081`.
+
+Execute a coleção nesta sequência para aproveitar a captura automática de IDs: crie setor, categoria, solicitante e técnico; abra o chamado; registre uma interação; assuma e resolva o chamado. Para testar cancelamento, abra um novo chamado e cancele-o antes de assumir. Execute as requisições de exclusão apenas ao final, pois removem os recursos criados. As pastas de filtros e erros contêm exemplos positivos e negativos, sem credenciais ou IDs fixos.

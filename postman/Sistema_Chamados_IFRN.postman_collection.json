@@ -1,0 +1,102 @@
+{
+  "info": {
+    "_postman_id": "a2f5f8d2-0470-4f5f-9437-8f0bfbd30b08",
+    "name": "Sistema de Chamados IFRN",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "setorId", "value": "1" },
+    { "key": "categoriaId", "value": "1" },
+    { "key": "solicitanteId", "value": "1" },
+    { "key": "tecnicoId", "value": "3" },
+    { "key": "chamadoId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Setores",
+      "item": [
+        {
+          "name": "Criar setor",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('201 Created', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('setorId', pm.response.json().id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Laboratório Postman\",\n  \"sigla\": \"LABPM\"\n}" }, "url": "{{baseUrl}}/setores" }
+        },
+        { "name": "Listar setores", "event": [{ "listen": "test", "script": { "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));"] } }], "request": { "method": "GET", "url": "{{baseUrl}}/setores?page=0&size=10&sort=nome,asc" } },
+        { "name": "Buscar setor", "request": { "method": "GET", "url": "{{baseUrl}}/setores/{{setorId}}" } },
+        { "name": "Atualizar setor", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Laboratório Postman Atualizado\",\n  \"sigla\": \"LABPM\"\n}" }, "url": "{{baseUrl}}/setores/{{setorId}}" } },
+        { "name": "Excluir setor", "event": [{ "listen": "test", "script": { "exec": ["pm.test('204 No Content', () => pm.response.to.have.status(204));"] } }], "request": { "method": "DELETE", "url": "{{baseUrl}}/setores/{{setorId}}" } },
+        { "name": "Categorias do setor", "request": { "method": "GET", "url": "{{baseUrl}}/setores/{{setorId}}/categorias?page=0&size=10" } }
+      ]
+    },
+    {
+      "name": "Categorias",
+      "item": [
+        {
+          "name": "Criar categoria",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('201 Created', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('categoriaId', pm.response.json().id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Categoria Postman\",\n  \"descricao\": \"Criada pela coleção\",\n  \"setorId\": {{setorId}}\n}" }, "url": "{{baseUrl}}/categorias" }
+        },
+        { "name": "Listar categorias", "request": { "method": "GET", "url": "{{baseUrl}}/categorias?nome=Postman&setorId={{setorId}}&page=0&size=10" } },
+        { "name": "Buscar categoria", "request": { "method": "GET", "url": "{{baseUrl}}/categorias/{{categoriaId}}" } },
+        { "name": "Atualizar categoria", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Categoria Postman Atualizada\",\n  \"descricao\": \"Atualizada\",\n  \"setorId\": {{setorId}}\n}" }, "url": "{{baseUrl}}/categorias/{{categoriaId}}" } },
+        { "name": "Excluir categoria", "request": { "method": "DELETE", "url": "{{baseUrl}}/categorias/{{categoriaId}}" } }
+      ]
+    },
+    {
+      "name": "Usuários",
+      "item": [
+        {
+          "name": "Criar solicitante",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('201 Created', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('solicitanteId', pm.response.json().id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Solicitante Postman\",\n  \"email\": \"solicitante.postman@example.com\",\n  \"matricula\": \"20269991\",\n  \"tipo\": \"SOLICITANTE\"\n}" }, "url": "{{baseUrl}}/usuarios" }
+        },
+        {
+          "name": "Criar técnico",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('201 Created', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('tecnicoId', pm.response.json().id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Técnico Postman\",\n  \"email\": \"tecnico.postman@example.com\",\n  \"matricula\": \"20269992\",\n  \"tipo\": \"TECNICO\",\n  \"setorId\": {{setorId}}\n}" }, "url": "{{baseUrl}}/usuarios" }
+        },
+        { "name": "Listar usuários", "request": { "method": "GET", "url": "{{baseUrl}}/usuarios?tipo=SOLICITANTE&page=0&size=10&sort=nome,asc" } },
+        { "name": "Buscar usuário", "request": { "method": "GET", "url": "{{baseUrl}}/usuarios/{{solicitanteId}}" } },
+        { "name": "Atualizar usuário", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Solicitante Postman Atualizado\",\n  \"email\": \"solicitante.postman@example.com\",\n  \"matricula\": \"20269991\",\n  \"tipo\": \"SOLICITANTE\"\n}" }, "url": "{{baseUrl}}/usuarios/{{solicitanteId}}" } },
+        { "name": "Chamados do usuário", "request": { "method": "GET", "url": "{{baseUrl}}/usuarios/{{solicitanteId}}/chamados?status=ABERTO&page=0&size=10" } }
+      ]
+    },
+    {
+      "name": "Chamados",
+      "item": [
+        {
+          "name": "Abrir chamado",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('201 Created', () => pm.response.to.have.status(201));", "pm.test('status inicial', () => pm.expect(pm.response.json().status).to.eql('ABERTO'));", "pm.collectionVariables.set('chamadoId', pm.response.json().id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Chamado criado no Postman\",\n  \"descricao\": \"Descrição de teste da API\",\n  \"local\": \"Sala 101\",\n  \"prioridade\": \"ALTA\",\n  \"solicitanteId\": {{solicitanteId}},\n  \"categoriaId\": {{categoriaId}}\n}" }, "url": "{{baseUrl}}/chamados" }
+        },
+        { "name": "Listar chamados", "request": { "method": "GET", "url": "{{baseUrl}}/chamados?page=0&size=10&sort=dataAbertura,desc" } },
+        { "name": "Buscar chamado", "request": { "method": "GET", "url": "{{baseUrl}}/chamados/{{chamadoId}}" } },
+        { "name": "Assumir chamado", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"tecnicoId\": {{tecnicoId}} }" }, "url": "{{baseUrl}}/chamados/{{chamadoId}}/assumir" } },
+        { "name": "Resolver chamado", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"tecnicoId\": {{tecnicoId}}, \"solucao\": \"Atendimento concluído\" }" }, "url": "{{baseUrl}}/chamados/{{chamadoId}}/resolver" } },
+        { "name": "Cancelar chamado", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"solicitanteId\": {{solicitanteId}} }" }, "url": "{{baseUrl}}/chamados/{{chamadoId}}/cancelar" } }
+      ]
+    },
+    {
+      "name": "Interações",
+      "item": [
+        { "name": "Registrar interação", "event": [{ "listen": "test", "script": { "exec": ["pm.test('201 Created', () => pm.response.to.have.status(201));"] } }], "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"autorId\": {{solicitanteId}}, \"texto\": \"Mensagem enviada pelo solicitante\" }" }, "url": "{{baseUrl}}/chamados/{{chamadoId}}/interacoes" } }
+      ]
+    },
+    {
+      "name": "Filtros e paginação",
+      "item": [
+        { "name": "Chamados por todos os filtros", "request": { "method": "GET", "url": "{{baseUrl}}/chamados?status=ABERTO&prioridade=ALTA&setorId={{setorId}}&categoriaId={{categoriaId}}&solicitanteId={{solicitanteId}}&tecnicoId={{tecnicoId}}&dataInicio=2026-01-01&dataFim=2026-12-31&page=0&size=50&sort=dataAbertura,desc" } },
+        { "name": "Categorias por filtros", "request": { "method": "GET", "url": "{{baseUrl}}/categorias?nome=Postman&setorId={{setorId}}&page=0&size=10" } },
+        { "name": "Usuários por filtros", "request": { "method": "GET", "url": "{{baseUrl}}/usuarios?nome=Postman&tipo=TECNICO&setorId={{setorId}}&page=0&size=10&sort=nome,asc" } }
+      ]
+    },
+    {
+      "name": "Testes de erros",
+      "item": [
+        { "name": "400 - chamado inválido", "event": [{ "listen": "test", "script": { "exec": ["pm.test('400 Bad Request', () => pm.response.to.have.status(400));"] } }], "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"titulo\": \"\", \"descricao\": \"\", \"local\": \"\" }" }, "url": "{{baseUrl}}/chamados" } },
+        { "name": "404 - chamado inexistente", "event": [{ "listen": "test", "script": { "exec": ["pm.test('404 Not Found', () => pm.response.to.have.status(404));"] } }], "request": { "method": "GET", "url": "{{baseUrl}}/chamados/999999999" } },
+        { "name": "409 - transição inválida", "event": [{ "listen": "test", "script": { "exec": ["pm.test('409 Conflict', () => pm.response.to.have.status(409));"] } }], "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{ \"tecnicoId\": {{tecnicoId}}, \"solucao\": \"Tentativa fora da transição permitida\" }" }, "url": "{{baseUrl}}/chamados/{{chamadoId}}/resolver" } }
+      ]
+    }
+  ]
+}
