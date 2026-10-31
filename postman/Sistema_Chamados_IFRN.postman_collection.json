@@ -6,10 +6,10 @@
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:8080" },
-    { "key": "setorId", "value": "1" },
-    { "key": "categoriaId", "value": "1" },
-    { "key": "solicitanteId", "value": "1" },
-    { "key": "tecnicoId", "value": "3" },
+    { "key": "setorId", "value": "" },
+    { "key": "categoriaId", "value": "" },
+    { "key": "solicitanteId", "value": "" },
+    { "key": "tecnicoId", "value": "" },
     { "key": "chamadoId", "value": "" }
   ],
   "item": [

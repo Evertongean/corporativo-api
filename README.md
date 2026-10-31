@@ -1,5 +1,16 @@
 # corporativo-api
 
+API REST do Sistema de Chamados do IFRN, desenvolvida para a disciplina de Desenvolvimento de Sistemas Corporativos. Ela permite administrar setores, categorias e usuários, além de abrir, acompanhar, assumir, resolver, cancelar e registrar interações em chamados.
+
+## Tecnologias e arquitetura
+
+- Java 21, Spring Boot 4.1.2 e Maven;
+- Spring Web MVC, Spring Data JPA, Jakarta Validation e Flyway;
+- PostgreSQL 17 e Docker Compose;
+- JUnit 5, Mockito e MockMvc para testes.
+
+O código está separado em camadas: `controller` recebe e responde HTTP por DTOs; `service` aplica validações e regras de negócio; `repository` executa a persistência e filtros paginados; e `model` contém as entidades JPA. Controllers usam injeção por construtor e não retornam entidades diretamente.
+
 ## Executar com Docker Compose
 
 Com Docker e Docker Compose instalados, inicie a API e o PostgreSQL a partir da raiz do repositório:
@@ -8,7 +19,7 @@ Com Docker e Docker Compose instalados, inicie a API e o PostgreSQL a partir da 
 docker compose up
 ```
 
-O Compose inicia os serviços `db` (PostgreSQL 17) e `api` (Spring Boot). A API fica disponível na porta `8080` do host. Nesta etapa ainda não há controllers; portanto, uma resposta `404` em `http://localhost:8080/` confirma que a aplicação Spring Boot está respondendo, mas não que exista uma rota.
+O Compose inicia os serviços `db` (PostgreSQL 17) e `api` (Spring Boot). A API fica disponível em `http://localhost:8080`; após a inicialização, `GET /setores` é uma rota pública que pode ser usada para confirmar a resposta da aplicação.
 
 O banco não publica a porta `5432` no host, prevenindo conflito com uma instalação local. Seus dados ficam persistidos no volume nomeado `postgres_data`; para parar os serviços sem apagar dados, use:
 
@@ -42,6 +53,8 @@ O Flyway executa, em ordem, os scripts em `sistema-chamados/src/main/resources/d
 
 O Hibernate está configurado com `spring.jpa.hibernate.ddl-auto=validate` e `spring.jpa.open-in-view=false`. Assim, ele apenas verifica se o mapeamento JPA corresponde ao esquema criado pelo Flyway; não cria nem altera tabelas. Isso evita alterações implícitas no banco e mantém a evolução do schema versionada e reprodutível, ao contrário de `ddl-auto=update`.
 
+Em produção, `ddl-auto=update` não é apropriado porque pode alterar o schema implicitamente, fora do histórico versionado e revisável das migrations. `ddl-auto=validate` é usado para falhar cedo caso o mapeamento JPA não corresponda ao schema que o Flyway construiu.
+
 ## API REST
 
 As rotas públicas usam JSON, paginação (`page`, `size`, `sort`) e retornam dados por DTO. O tamanho padrão é 10 e o máximo é 50. Recursos disponíveis: `/setores`, `/categorias`, `/usuarios` e `/chamados`.
@@ -59,6 +72,17 @@ curl 'localhost:8080/chamados?status=ABERTO&prioridade=ALTA&page=0&size=10&sort=
 ```
 
 Os erros usam o formato `{ "timestamp", "status", "mensagem", "caminho" }`; por exemplo, dados inválidos retornam 400, recurso inexistente 404 e violações de regra 409.
+
+### Endpoints
+
+| Recurso | Operações |
+| --- | --- |
+| Setores | criar, listar, buscar, atualizar, excluir e listar categorias do setor |
+| Categorias | criar, listar, buscar, atualizar e excluir |
+| Usuários | criar, listar, buscar, atualizar e listar seus chamados |
+| Chamados | abrir, listar, detalhar, assumir, resolver, cancelar e registrar interação |
+
+As rotas completas e os corpos de exemplo estão na coleção Postman. Não há autenticação nesta versão; os IDs de solicitante, técnico e autor são informados no JSON das operações correspondentes.
 
 ## Testes automatizados
 
